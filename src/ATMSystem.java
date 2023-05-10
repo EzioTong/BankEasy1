@@ -1,7 +1,5 @@
-import javafx.scene.transform.Scale;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
+
 public class ATMSystem {
     public static void main(String[] args) {
         ArrayList<Account> accounts =new ArrayList<>();     //To srore the account information
@@ -16,7 +14,8 @@ public class ATMSystem {
             System.out.println("-----------Welcom to EasyBank Online System----------------");
             System.out.println("1. Login");
             System.out.println("2. Register");
-            System.out.println("3. Exit");
+            System.out.println("3. Simulate Interest Rate Changes and Loan Chargest"); // to do.
+            System.out.println("4. Exit");
             System.out.print("What would you like to do? (1/2/3):");
             int command=sc.nextInt();
             switch(command){
@@ -27,7 +26,11 @@ public class ATMSystem {
                     register(accounts,sc);
                     break;
                 case 3:
+                    System.out.println("Simulating interest rate");
                     break;
+                    //TODO: Add the interest rate simulation
+                case 4:
+                    return;
                 default:
                     System.out.println("Please type again!");
             }
@@ -151,10 +154,11 @@ public class ATMSystem {
             System.out.println("2. Deposit");
             System.out.println("3. Withdraw");
             System.out.println("4. Transfer");
-            System.out.println("5. Change password");
-            System.out.println("6. Exit");
-            System.out.println("7. Cancel current account");
-            System.out.println("Please select your action by entering: (1/2/3/4/5/6/7)");
+            System.out.println("5. Loans");
+            System.out.println("6. Change password");
+            System.out.println("7. Exit");
+            System.out.println("8. Cancel current account");
+            System.out.println("Please select your action by entering: (1/2/3/4/5/6/7/8)");
             int command1=sc.nextInt();
             switch(command1){
                 case 1:
@@ -170,12 +174,15 @@ public class ATMSystem {
                     zhuanzhang(accounts,acc,sc);//Transfer
                     break;
                 case 5:
+                    manageLoans(acc, sc);   // Loan
+                    break;
+                case 6:
                     updatePassword(acc,sc); //Change password
                     return;     //Login again
-                case 6:
+                case 7:
                     System.out.println("Withdrawal successful, welcome to your next visit!");
                     return;     //break show
-                case 7:
+                case 8:
                     if(deleteAccount(accounts,acc,sc)){;    //cancel account
                         return;
                     }else{
@@ -206,10 +213,17 @@ public class ATMSystem {
      */
     private static void depositMoney(Account acc,Scanner sc) {
         System.out.println("======================Deposit=========================");
-        System.out.print("Please enter the amount of money you want to deposit: ");
-        acc.setMoney(sc.nextDouble()+acc.getMoney());
-        System.out.println("Deposit successful!");
-        query(acc);
+        while(true) {
+            System.out.print("Please enter the amount of money you want to deposit: ");
+            if (sc.nextDouble() < 0) {
+                System.out.println("Invalid entry. Please enter positive number: ");
+            } else {
+                acc.setMoney(sc.nextDouble() + acc.getMoney());
+                System.out.println("Deposit successful!");
+                query(acc);
+                return;     // break
+            }
+        }
     }
     /**
      * Withdrawal
@@ -351,5 +365,150 @@ public class ATMSystem {
                 System.out.println("Account cancel unsuccessful, your account will still exist.");
         }
         return false;
+    }
+
+    /**
+     * display loan management
+     * @param acc
+     * @param sc
+     */
+    private static void manageLoans(Account acc, Scanner sc) {
+        while (true) {
+            System.out.println("===================Loan=====================");
+            System.out.println("Account balance: " + acc.getMoney());
+            System.out.println("Current loans: " + acc.getLoanString());
+            System.out.println("1. New loan ");
+            System.out.println("2. Pay loan ");
+            System.out.println("3: Return");
+            System.out.print("Please select your action by entering (1/2/3): ");
+             int command = sc.nextInt();
+                switch (command) {
+                    case(1):
+                        if(acc.getLoanCount() >= 3) {
+                            System.out.println("Sorry, you have exceeded the count amount you can take.");
+                            break;
+                        } else  {
+                            System.out.print("Please enter loan amount you would like to take: ");
+                            double loan = sc.nextDouble();
+                            if(loan <= 0) {
+                                System.out.println("Loan amount must be greater than 0.");
+                            } else if (loan > acc.getMoney()) {
+                                System.out.println("Requested loan exceeds current balance.");
+                            } else if(loan + acc.getTotalLoan() > acc.getMoney()) {
+                                System.out.println("Additional loan will exceed current account balance.");
+                            } else {
+                                double[] currentLoans = acc.getLoans();
+                                for(int i = 0; i < currentLoans.length; i++) {
+                                    if (currentLoans[i] == 0) {
+                                        acc.addLoanCount();
+                                        acc.setLoans(acc.getLoanCount() - 1, loan);
+                                        System.out.println("Loan added: " + acc.getLoanString());
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    case(2):
+                        loop2: while (true) {
+                            double[] loans = acc.getLoans();
+                            System.out.println("+++++++Select Loan:++++++++++");
+                            System.out.println("1. " + loans[0]);
+                            System.out.println("2. " + loans[1]);
+                            System.out.println("3. " + loans[2]);
+                            System.out.println("4. All");
+                            System.out.println("5. Return");
+                            System.out.print("Please select action by entering (1/2/3/4/5): ");
+                            int command1 = sc.nextInt();
+                            switch (command1) {
+                                case 1:
+                                    System.out.print("Enter amount you would like to pay: ");
+
+                                    double pay = sc.nextDouble();
+
+                                    if (pay < 0 || pay > acc.getMoney()) {
+                                        System.out.println("Payment amount invalid");
+                                    } else if(pay >= loans[0]) {
+                                        System.out.println("Paying remaining loan amount.");
+                                        acc.setMoney(acc.getMoney() - loans[0]);
+                                        acc.setLoans(0, 0);
+                                        acc.subtractLoanCount();
+                                    } else {
+                                        acc.setMoney(acc.getMoney() - pay);
+                                        acc.setLoans(0, loans[0] - pay);
+                                    }
+
+                                    break;
+                                case 2:
+                                    System.out.print("Enter amount you would like to pay: ");
+
+                                    pay = sc.nextDouble();
+
+
+                                    if (pay < 0 || pay > acc.getMoney()) {
+                                        System.out.println("Payment amount invalid");
+                                    } else if(pay >= loans[0]) {
+                                        System.out.println("Paying remaining loan.");
+                                        acc.setMoney(acc.getMoney() - loans[1]);
+                                        acc.setLoans(1, 0);
+                                        acc.subtractLoanCount();
+                                    } else {
+                                        acc.setMoney(acc.getMoney() - pay);
+                                        acc.setLoans(1, loans[1] - pay);
+                                    }
+
+                                    break;
+
+                                case 3:
+                                    System.out.print("Enter amount you would like to pay: ");
+
+                                    pay = sc.nextDouble();
+
+                                    if (pay < 0 || pay > acc.getMoney()) {
+                                        System.out.println("Payment amount invalid");
+                                    } else if(pay >= loans[0]) {
+                                        System.out.println("Paying remaining loan amount.");
+                                        acc.setMoney(acc.getMoney() - loans[2]);
+                                        acc.setLoans(2, 0);
+                                        acc.subtractLoanCount();
+                                    } else {
+                                        acc.setMoney(acc.getMoney() - pay);
+                                        acc.setLoans(2, loans[2] - pay);
+                                    }
+
+                                    break;
+
+                                case 4:
+                                    System.out.print("Enter amount you would like to pay for each account: ");
+                                    pay = sc.nextDouble();
+
+                                    if (pay * acc.getLoanCount() < 0 || pay * acc.getLoanCount() > acc.getMoney()) {
+                                        System.out.println("Payment amount invalid");
+                                    } else {
+                                        for (int i = 0; i < acc.getLoanCount(); i++) {
+                                            if(pay >= loans[i]) {
+                                                System.out.println("Paying remaining loan amount.");
+                                                acc.setMoney(acc.getMoney() - loans[i]);
+                                                acc.setLoans(i, 0);
+                                                acc.subtractLoanCount();
+                                            } else {
+                                                acc.setMoney(acc.getMoney() - pay);
+                                                acc.setLoans(i, loans[i] - pay);
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case 5:
+                                    break loop2; // return to Loan operating screen
+                                default:
+                                    System.out.println("No such action");
+                            }
+                        }
+                    case(3):
+                        return; // back to operation screen.
+                    default:
+                        System.out.println("No such action!");
+                }
+        }
     }
 }
