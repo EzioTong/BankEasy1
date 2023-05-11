@@ -217,13 +217,22 @@ public class ATMSystem {
         System.out.println("======================Deposit=========================");
         while(true) {
             System.out.print("Please enter the amount of money you want to deposit: ");
-            if (sc.nextDouble() < 0) {
+            Double depositMoney = sc.nextDouble();
+            if (depositMoney < 0) {
                 System.out.println("Invalid entry. Please enter positive number: ");
             } else {
-                acc.setMoney(sc.nextDouble() + acc.getMoney());
-                System.out.println("Deposit successful!");
-                query(acc);
-                return;     // break
+                if (depositMoney > 10000) {
+                    System.out.println("Exceeds the limit for single deposit of €10000. Please try again.");
+                } else{
+                    acc.setMoney(depositMoney + acc.getMoney());
+                    System.out.println("Deposit successful!");
+                    query(acc);
+                    return;     //break
+                }
+                //acc.setMoney(sc.nextDouble() + acc.getMoney());
+                //System.out.println("Deposit successful!");
+                //query(acc);
+                //return;     // break
             }
         }
     }
@@ -297,7 +306,7 @@ public class ATMSystem {
                             System.out.print("Please enter the amount of money that you want to transfer:");
                             Double money=sc.nextDouble();
                             if(money>acc.getMoney()){
-                                System.out.print("Insufficient balance! The balance of your account is €"+acc.getMoney()+"!");
+                                System.out.println("Insufficient balance! The balance of your account is €"+acc.getMoney()+"!");
                             }else {
                                 acc.setMoney(acc.getMoney() - money);
                                 a.setMoney(a.getMoney() + money);
