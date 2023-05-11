@@ -14,7 +14,7 @@ public class ATMSystem {
             System.out.println("-----------Welcom to EasyBank Online System----------------");
             System.out.println("1. Login");
             System.out.println("2. Register");
-            System.out.println("3. Simulate Interest Rate Changes and Loan Chargest"); // to do.
+            System.out.println("3. Simulate Interest Rate Changes and Loan Charge"); // to do.
             System.out.println("4. Exit");
             System.out.print("What would you like to do? (1/2/3):");
             int command=sc.nextInt();
@@ -27,12 +27,14 @@ public class ATMSystem {
                     break;
                 case 3:
                     System.out.println("Simulating interest rate");
+                    manageLoans(account, sc);
                     break;
                     //TODO: Add the interest rate simulation
                 case 4:
                     return;
                 default:
                     System.out.println("Please type again!");
+                break;
             }
         }
 
@@ -379,7 +381,7 @@ public class ATMSystem {
             System.out.println("Current loans: " + acc.getLoanString());
             System.out.println("1. New loan ");
             System.out.println("2. Pay loan ");
-            System.out.println("3: Return");
+            System.out.println("3. Return");
             System.out.print("Please select your action by entering (1/2/3): ");
              int command = sc.nextInt();
                 switch (command) {
@@ -460,7 +462,7 @@ public class ATMSystem {
                                     break;
 
                                 case 3:
-                                    System.out.print("Enter amount you would like to pay: ");
+                                    System.out.print("Please enter the amount you would like to pay: ");
 
                                     pay = sc.nextDouble();
 
@@ -479,7 +481,7 @@ public class ATMSystem {
                                     break;
 
                                 case 4:
-                                    System.out.print("Enter amount you would like to pay for each account: ");
+                                    System.out.print("Please enter the amount you would like to pay for each account: ");
                                     pay = sc.nextDouble();
 
                                     if (pay * acc.getLoanCount() < 0 || pay * acc.getLoanCount() > acc.getMoney()) {
@@ -501,7 +503,7 @@ public class ATMSystem {
                                 case 5:
                                     break loop2; // return to Loan operating screen
                                 default:
-                                    System.out.println("No such action");
+                                    System.out.println("No such action!");
                             }
                         }
                     case(3):
